@@ -1,0 +1,30 @@
+{
+  "name": "adventofcode",
+  "version": "0.0.1",
+  "description": "Adventofcode",
+  "author": "SYarmolenka",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SYarmolenka/adventofcode.git"
+  },
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon ./src/main.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "ramda": "^0.27.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1"
+  }
+}
