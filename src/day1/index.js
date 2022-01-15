@@ -1,4 +1,6 @@
-export const task1 = (arr) =>
+import data from './data.js';
+
+const task1 = (arr) =>
   arr.reduce(
     (acc, n, index) => {
       if (index === 0) return acc;
@@ -10,7 +12,7 @@ export const task1 = (arr) =>
     { inc: 0, dec: 0 }
   );
 
-export const task2 = (arr) =>
+const task2 = (arr) =>
   arr.reduce(
     (acc, n, index) => {
       if (index === 0 || index === 1 || index === acc.length - 1) return acc;
@@ -25,3 +27,5 @@ export const task2 = (arr) =>
     },
     { inc: 0, dec: 0 }
   );
+
+export default () => [task1(data).inc, task2(data).inc];
