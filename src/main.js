@@ -1,5 +1,5 @@
 import readline from 'readline';
-import { times, inc, pipe, repeat, join, maxBy, length, map } from 'ramda';
+import { times, inc, pipe, repeat, join, maxBy, length, forEach } from 'ramda';
 
 import getDay1 from './day1/index.js';
 import getDay2 from './day2/index.js';
@@ -13,43 +13,37 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+const days = pipe(length, times(inc), join(', '))(results);
+
 const ask = () => {
   console.log(
-    `To get tasks result, enter number of day (${pipe(
-      length,
-      times(inc),
-      join(', ')
-    )(results)}). To exit just enter 'exit'.`
+    `To get tasks result, enter number of day (${days}). To exit just enter 'q'.`
   );
 
   rl.question('Your command: ', (value) => {
-    if (value.toLowerCase() === 'exit') {
+    if (value.toLowerCase() === 'q') {
       rl.close();
 
       return;
     }
 
     const number = Number(value);
-    console.log('number', number);
-    const error = 'Incorrect input';
     const answers =
-      number && results[number - 1]
-        ? map(String, results[number - 1]())
-        : [error];
+      number && typeof results[number - 1] === 'function'
+        ? results[number - 1]().map(
+            (answer, index) =>
+              `Result of Day ${number}, task ${index + 1}: ${answer}`
+          )
+        : [`Incorrect input! Please enter one of ${days}.`];
+
     const line = pipe(
-      ($) => maxBy(length, ...$),
+      ($) => maxBy(length, ...$, ''),
       length,
       pipe(repeat('-'), join(''))
     )(answers);
 
     console.log(line);
-    answers.forEach((answer, index) => {
-      if (answer === error) {
-        console.log(answer);
-      } else {
-        console.log(`Result of Day ${number}, task ${index + 1}: ${answer}`);
-      }
-    });
+    forEach(console.log, answers);
     console.log(line);
 
     ask();
