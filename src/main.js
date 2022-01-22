@@ -7,8 +7,9 @@ import getDay3 from './day3/index.js';
 import getDay4 from './day4/index.js';
 import getDay5 from './day5/index.js';
 import getDay6 from './day6/index.js';
+import getDay7 from './day7/index.js';
 
-const results = [getDay1, getDay2, getDay3, getDay4, getDay5, getDay6];
+const results = [getDay1, getDay2, getDay3, getDay4, getDay5, getDay6, getDay7];
 
 const rl = readline.createInterface({
   input: process.stdin,
