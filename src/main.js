@@ -5,8 +5,10 @@ import getDay1 from './day1/index.js';
 import getDay2 from './day2/index.js';
 import getDay3 from './day3/index.js';
 import getDay4 from './day4/index.js';
+import getDay5 from './day5/index.js';
+import getDay6 from './day6/index.js';
 
-const results = [getDay1, getDay2, getDay3, getDay4];
+const results = [getDay1, getDay2, getDay3, getDay4, getDay5, getDay6];
 
 const rl = readline.createInterface({
   input: process.stdin,
