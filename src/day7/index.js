@@ -1,4 +1,5 @@
 import { median, times, identity, map, pipe, sort, head, sum } from 'ramda';
+
 import data from './data.js';
 
 const task1 = (arr) => {
