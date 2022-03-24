@@ -1,18 +1,4 @@
-import {
-  cond,
-  pathOr,
-  times,
-  equals,
-  T,
-  keys,
-  clone,
-  map,
-  pipe,
-  sort,
-  take,
-  reduce,
-  multiply,
-} from 'ramda';
+import { cond, pathOr, times, equals, T, keys, clone, map, pipe, sort, take, reduce, multiply } from 'ramda';
 
 import data from './data.js';
 
@@ -100,9 +86,7 @@ const getPoolForPoints = (initPool, initArr) => {
     pool = { ...pool, ...res };
   });
 
-  return keys(initPool).length === keys(pool).length
-    ? keys(pool).length
-    : getPoolForPoints(pool, initArr);
+  return keys(initPool).length === keys(pool).length ? keys(pool).length : getPoolForPoints(pool, initArr);
 };
 
 const task2 = (d) => {

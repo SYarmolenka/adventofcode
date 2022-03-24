@@ -6,8 +6,7 @@ const task1 = (arr) => {
   let result = 0;
   arr.forEach(([, output]) => {
     output.forEach(({ length }) => {
-      if (length === 2 || length === 3 || length === 4 || length === 7)
-        result += 1;
+      if (length === 2 || length === 3 || length === 4 || length === 7) result += 1;
     });
   });
 
@@ -63,9 +62,7 @@ const define069 = (d) => {
 };
 const define235 = (d) => {
   const regExp7 = new RegExp(`.*${d.template[7].split('').join('.*')}.*`);
-  const missedSymbol = d.template[8]
-    .split('')
-    .find((v) => !RegExp(v).test(d.template[9]));
+  const missedSymbol = d.template[8].split('').find((v) => !RegExp(v).test(d.template[9]));
   const number5 = d.template[6]
     .split('')
     .filter((v) => v !== missedSymbol)

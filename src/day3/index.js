@@ -35,9 +35,7 @@ const defineRate = (arr, feature) => {
         if (str[index] === '1') v1 += 1;
       });
 
-      const argument =
-        (feature === 'o2' && (v0 > v1 ? '0' : '1')) ||
-        (feature === 'co2' && (v0 <= v1 ? '0' : '1'));
+      const argument = (feature === 'o2' && (v0 > v1 ? '0' : '1')) || (feature === 'co2' && (v0 <= v1 ? '0' : '1'));
       let len = acc.length;
 
       return len === 1

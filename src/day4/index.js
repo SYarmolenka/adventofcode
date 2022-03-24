@@ -1,16 +1,4 @@
-import {
-  times,
-  repeat,
-  all,
-  pipe,
-  flatten,
-  sum,
-  map,
-  sortBy,
-  prop,
-  head,
-  last,
-} from 'ramda';
+import { times, repeat, all, pipe, flatten, sum, map, sortBy, prop, head, last } from 'ramda';
 
 import { numbers, templates } from './data.js';
 
@@ -42,14 +30,7 @@ const handleItem = (arr) => {
       if (done) {
         result.steps = index + 1;
         result.answer =
-          pipe(
-            flatten,
-            sum
-          )(
-            template.map((subItem, i) =>
-              subItem.map((item, j) => (item ? 0 : arr[i][j]))
-            )
-          ) * number;
+          pipe(flatten, sum)(template.map((subItem, i) => subItem.map((item, j) => (item ? 0 : arr[i][j])))) * number;
       }
 
       return done;
@@ -63,18 +44,8 @@ const handleItem = (arr) => {
   return result;
 };
 
-const task1 = pipe(
-  map(handleItem),
-  sortBy(prop('steps')),
-  head,
-  prop('answer')
-);
+const task1 = pipe(map(handleItem), sortBy(prop('steps')), head, prop('answer'));
 
-const task2 = pipe(
-  map(handleItem),
-  sortBy(prop('steps')),
-  last,
-  prop('answer')
-);
+const task2 = pipe(map(handleItem), sortBy(prop('steps')), last, prop('answer'));
 
 export default () => [task1(templates), task2(templates)];

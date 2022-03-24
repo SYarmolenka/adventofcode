@@ -27,16 +27,6 @@
     "no-restricted-syntax": 0,
     "no-return-await": 0,
     "no-console": 0,
-    "prettier/prettier": [
-      "error",
-      {
-        "trailingComma": "es5",
-        "singleQuote": true,
-        "printWidth": 80,
-        "tabWidth": 2,
-        "endOfLine": "lf",
-        "arrowParens": "always"
-      }
-    ]
+    "prettier/prettier": "warn"
   }
 }

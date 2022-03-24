@@ -10,18 +10,9 @@ import getDay6 from './day6/index.js';
 import getDay7 from './day7/index.js';
 import getDay8 from './day8/index.js';
 import getDay9 from './day9/index.js';
+import getDay10 from './day10/index.js';
 
-const results = [
-  getDay1,
-  getDay2,
-  getDay3,
-  getDay4,
-  getDay5,
-  getDay6,
-  getDay7,
-  getDay8,
-  getDay9,
-];
+const results = [getDay1, getDay2, getDay3, getDay4, getDay5, getDay6, getDay7, getDay8, getDay9, getDay10];
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -31,9 +22,7 @@ const rl = readline.createInterface({
 const days = pipe(length, times(inc), join(', '))(results);
 
 const ask = () => {
-  console.log(
-    `To get tasks result, enter number of day (${days}). To exit just enter 'q'.`
-  );
+  console.log(`To get tasks result, enter number of day (${days}). To exit just enter 'q'.`);
 
   rl.question('Your command: ', (value) => {
     if (value.toLowerCase() === 'q') {
@@ -45,17 +34,10 @@ const ask = () => {
     const number = Number(value);
     const answers =
       number && typeof results[number - 1] === 'function'
-        ? results[number - 1]().map(
-            (answer, index) =>
-              `Result of Day ${number}, task ${index + 1}: ${answer}`
-          )
+        ? results[number - 1]().map((answer, index) => `Result of Day ${number}, task ${index + 1}: ${answer}`)
         : [`Incorrect input! Please enter one of ${days}.`];
 
-    const line = pipe(
-      ($) => maxBy(length, ...$, ''),
-      length,
-      pipe(repeat('-'), join(''))
-    )(answers);
+    const line = pipe(($) => maxBy(length, ...$, ''), length, pipe(repeat('-'), join('')))(answers);
 
     console.log(line);
     forEach(console.log, answers);

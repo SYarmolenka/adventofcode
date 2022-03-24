@@ -7,15 +7,7 @@ const getAmountRecursive = (days, initAge) => {
 
   if (restDays === 0) return 1;
 
-  return (
-    1 +
-    sum(
-      times(
-        (i) => getAmountRecursive(restDays - 1 - i * 7, 8),
-        Math.ceil(restDays / 7)
-      )
-    )
-  );
+  return 1 + sum(times((i) => getAmountRecursive(restDays - 1 - i * 7, 8), Math.ceil(restDays / 7)));
 };
 
 const task1 = (days, arr) => {
