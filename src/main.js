@@ -1,5 +1,5 @@
 import readline from 'readline';
-import { times, inc, pipe, repeat, join, maxBy, length, forEach } from 'ramda';
+import { times, inc, pipe, join, length, forEach } from 'ramda';
 
 import getDay1 from './day1/index.js';
 import getDay2 from './day2/index.js';
@@ -13,8 +13,23 @@ import getDay9 from './day9/index.js';
 import getDay10 from './day10/index.js';
 import getDay11 from './day11/index.js';
 import getDay12 from './day12/index.js';
+import getDay13 from './day13/index.js';
 
-const results = [getDay1, getDay2, getDay3, getDay4, getDay5, getDay6, getDay7, getDay8, getDay9, getDay10, getDay11, getDay12];
+const results = [
+  getDay1,
+  getDay2,
+  getDay3,
+  getDay4,
+  getDay5,
+  getDay6,
+  getDay7,
+  getDay8,
+  getDay9,
+  getDay10,
+  getDay11,
+  getDay12,
+  getDay13,
+];
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -39,7 +54,7 @@ const ask = () => {
         ? results[number - 1]().map((answer, index) => `Result of Day ${number}, task ${index + 1}: ${answer}`)
         : [`Incorrect input! Please enter one of ${days}.`];
 
-    const line = pipe(($) => maxBy(length, ...$, ''), length, pipe(repeat('-'), join('')))(answers);
+    const line = '-'.repeat(process.stdout.columns);
 
     console.log(line);
     forEach(console.log, answers);
