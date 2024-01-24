@@ -15,6 +15,7 @@ import getDay11 from './day11/index.js';
 import getDay12 from './day12/index.js';
 import getDay13 from './day13/index.js';
 import getDay14 from './day14/index.js';
+import getDay15 from './day15/index.js';
 
 const results = [
   getDay1,
@@ -31,6 +32,7 @@ const results = [
   getDay12,
   getDay13,
   getDay14,
+  getDay15,
 ];
 
 const rl = readline.createInterface({
