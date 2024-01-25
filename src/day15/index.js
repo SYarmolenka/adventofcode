@@ -85,9 +85,7 @@ const handleStep = (data) => {
 };
 
 const aStarAlgorithm = (start, goal, field) => {
-  const run = (data) => (data.active.cell === goal ? data.active.cost : run(handleStep(data)));
-
-  return run({
+  let data = {
     openedList: {},
     closedList: {},
     active: {
@@ -99,7 +97,25 @@ const aStarAlgorithm = (start, goal, field) => {
       weight: 0,
     },
     field,
-  });
+  };
+  let counter = 0;
+
+  const run = () => {
+    counter += 1;
+    data = handleStep(data);
+
+    if (data.active.cell === goal) return data.active.cost;
+    if (counter > 1000) {
+      counter = 0;
+
+      return null;
+    }
+
+    return run();
+  };
+  const repeat = () => run() || repeat(); // avoid Maximum Call Stack Size Exceeded
+
+  return repeat();
 };
 
 const task1 = (data) => {
