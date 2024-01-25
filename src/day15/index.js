@@ -1,47 +1,50 @@
-import { values, omit /* , last, reverse */ } from 'ramda';
+import { values } from 'ramda';
 
 import { DATA } from './data.js';
 
-const getField = (data) => data.map((str) => str.split('').map(Number));
-
-const getHeuristic = (x, y, goal) => {
-  const [goalY, goalX] = goal.split('-').map(Number);
-
-  return Math.abs(goalY - y) + Math.abs(goalX - x);
-};
-
-const getNeighbors = (cell, goal, closedList, field) => {
-  const [y, x] = cell.split('-').map(Number);
+const getNeighbors = (y, x, field) => {
   const result = [];
 
-  const right = `${y}-${x + 1}`;
-  if (x + 1 < field[y].length && !closedList[right]) {
-    result.push({ cell: right, parent: cell, cost: field[y][x + 1], heuristic: getHeuristic(x + 1, y, goal) });
-  }
-
-  const bottom = `${y + 1}-${x}`;
-  if (y + 1 < field.length && !closedList[bottom]) {
-    result.push({ cell: bottom, parent: cell, cost: field[y + 1][x], heuristic: getHeuristic(x, y + 1, goal) });
-  }
-
-  const left = `${y}-${x - 1}`;
-  if (x - 1 >= 0 && !closedList[left]) {
-    result.push({ cell: left, parent: cell, cost: field[y][x - 1], heuristic: getHeuristic(x - 1, y, goal) });
-  }
-
-  const top = `${y - 1}-${x}`;
-  if (y - 1 >= 0 && !closedList[top]) {
-    result.push({ cell: top, parent: cell, cost: field[y - 1][x], heuristic: getHeuristic(x, y - 1, goal) });
-  }
+  if (x + 1 < field[y].length) result.push(field[y][x + 1]);
+  if (y + 1 < field.length) result.push(field[y + 1][x]);
+  if (x - 1 >= 0) result.push(field[y][x - 1]);
+  if (y - 1 >= 0) result.push(field[y - 1][x]);
 
   return result;
+};
+
+const getField = (data, goal) => {
+  const field = data.map((str) => str.split('').map(Number));
+  const expandedField = field.reduce(
+    (acc, row, y) => [
+      ...acc,
+      row.map((cost, x) => {
+        const coords = [y, x];
+
+        return {
+          cell: coords.join('-'),
+          coords,
+          cost,
+          heuristic: Math.abs(goal[0] - y) + Math.abs(goal[1] - x),
+        };
+      }),
+    ],
+    []
+  );
+
+  expandedField.forEach((row, y) =>
+    row.forEach(($, x) => {
+      expandedField[y][x].neighbors = getNeighbors(y, x, expandedField);
+    })
+  );
+
+  return expandedField;
 };
 
 const takeBestCell = (openedList) => {
   const sorted = values(openedList).sort((a, b) => a.weight - b.weight);
 
   if (sorted.length < 2) return sorted[0];
-
   if (sorted[0].weight === sorted[1].weight && sorted[0].cost > sorted[1].cost) {
     return sorted[1];
   }
@@ -49,106 +52,61 @@ const takeBestCell = (openedList) => {
   return sorted[0];
 };
 
-const handleStep = (active, openedList, closedList, goal, field) => {
-  const neighbors = getNeighbors(active.cell, goal, closedList, field);
-  const updatedOpenedList = { ...openedList };
+const handleStep = (data) => {
+  const { active, openedList, closedList, field } = data;
 
-  neighbors.forEach(({ cell: neighbor, cost, heuristic }) => {
-    const totalCost = active.cost + cost;
-    const totalWeight = totalCost + heuristic;
+  field[active.coords[0]][active.coords[1]].neighbors.forEach((neighbor) => {
+    if (closedList[neighbor.cell]) return;
 
-    if (!openedList[neighbor] || openedList[neighbor].weight > totalWeight) {
-      updatedOpenedList[neighbor] = {
-        cell: neighbor,
+    const totalCost = active.cost + neighbor.cost;
+    const totalWeight = totalCost + neighbor.heuristic;
+
+    if (!openedList[neighbor.cell] || openedList[neighbor.cell].weight > totalWeight) {
+      openedList[neighbor.cell] = {
+        ...neighbor,
         parent: active.cell,
         cost: totalCost,
-        heuristic,
         weight: totalWeight,
       };
     }
   });
 
-  const bestCell = takeBestCell(updatedOpenedList);
+  const bestCell = takeBestCell(openedList);
+
+  delete openedList[bestCell.cell];
+  closedList[active.cell] = active;
 
   return {
-    openedList: omit([bestCell.cell], updatedOpenedList),
-    closedList: { ...closedList, [active.cell]: active },
+    openedList,
+    closedList,
     active: bestCell,
-    anotherGraphs: [],
+    field,
   };
 };
 
-// const calculateResult = (closedList, goal, field) => {
-//   const { cost } = closedList[goal];
-//   const route = [goal];
-//   let calculatesCost = 0;
-
-//   const run = () => {
-//     const { cell, parent } = closedList[last(route)];
-//     const [y, x] = cell.split('-').map(Number);
-
-//     if (parent) {
-//       route.push(parent);
-//       calculatesCost += field[y][x];
-
-//       return run();
-//     }
-
-//     return {
-//       route: reverse(route),
-//       cost,
-//       calculatesCost,
-//     };
-//   };
-
-//   return run();
-// };
-
 const aStarAlgorithm = (start, goal, field) => {
-  let data = {
+  const run = (data) => (data.active.cell === goal ? data.active.cost : run(handleStep(data)));
+
+  return run({
     openedList: {},
     closedList: {},
     active: {
       cell: start,
+      coords: start.split('-').map(Number),
       parent: null,
       cost: 0,
       heuristic: 0,
       weight: 0,
     },
-  };
-
-  let counter = 0;
-
-  const run = () => {
-    counter += 1;
-    data = handleStep(data.active, data.openedList, data.closedList, goal, field);
-
-    if (counter > 3000) {
-      counter = 0;
-      return null;
-    }
-
-    if (data.active.cell === goal) {
-      data.closedList = { ...data.closedList, [data.active.cell]: data.active };
-
-      // console.log(calculateResult({ ...data.closedList, [data.active.cell]: data.active }, goal, field));
-
-      return data.active.cost;
-    }
-
-    return run();
-  };
-
-  const repeat = () => run() || repeat();
-
-  return repeat();
+    field,
+  });
 };
 
 const task1 = (data) => {
-  const field = getField(data);
-  const goal = `${field.length - 1}-${field[0].length - 1}`;
+  const goal = [data.length - 1, data[0].length - 1];
+  const field = getField(data, goal);
 
-  return aStarAlgorithm('0-0', goal, field);
+  return aStarAlgorithm('0-0', goal.join('-'), field);
 };
 
 const task2 = () => {};
