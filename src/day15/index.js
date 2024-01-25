@@ -1,4 +1,4 @@
-import { values } from 'ramda';
+import { identity, times, values } from 'ramda';
 
 import { DATA } from './data.js';
 
@@ -113,7 +113,7 @@ const aStarAlgorithm = (start, goal, field) => {
 
     return run();
   };
-  const repeat = () => run() || repeat(); // avoid Maximum Call Stack Size Exceeded
+  const repeat = () => run() || repeat(); // to avoid "Maximum Call Stack Size Exceeded" error
 
   return repeat();
 };
@@ -125,6 +125,35 @@ const task1 = (data) => {
   return aStarAlgorithm('0-0', goal.join('-'), field);
 };
 
-const task2 = () => {};
+const getExpandedData = (data, factor) => {
+  const iterations = times(
+    (index) =>
+      data.reduce((acc, row, y) => {
+        if (index === 0) {
+          acc.push(row);
+
+          return acc;
+        }
+
+        acc.push([]);
+        row.split('').forEach((str) => {
+          const value = +str + index;
+
+          acc[y].push(value > 9 ? value % 9 : value);
+        });
+        acc[y] = acc[y].join('');
+
+        return acc;
+      }, []),
+    factor * factor
+  );
+
+  return times(identity, factor).reduce(
+    (acc, index) => [...acc, ...times((i) => times((j) => iterations[j + index][i], factor).join(''), data.length)],
+    []
+  );
+};
+
+const task2 = (data) => task1(getExpandedData(data, 5));
 
 export default () => [task1(DATA), task2(DATA)];
