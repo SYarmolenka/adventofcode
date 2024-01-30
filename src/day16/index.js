@@ -1,6 +1,15 @@
+import { pipe, cond, propEq, sum, reduce, T, head } from 'ramda';
+
 import { DATA } from './data.js';
 
-export const defineBundleConfig = (binaryString) => {
+const getBinaryString = (str) =>
+  str.split('').reduce((acc, symbol) => {
+    const binary = Number(`0x${symbol}`).toString(2);
+
+    return `${acc}${'0'.repeat(4 - binary.length)}${binary}`;
+  }, '');
+
+const defineBundleConfig = (binaryString) => {
   const type = Number.parseInt(binaryString.slice(3, 6), 2);
   const operator = type !== 4 && binaryString[6];
   const lengthId = (operator === '0' && 15) || (operator === '1' && 11) || 0;
@@ -15,11 +24,9 @@ export const defineBundleConfig = (binaryString) => {
   };
 };
 
-const getBundleBits = (bundle) =>
-  bundle.headBits +
-  (bundle.body
-    ? bundle.body.reduce((acc, subBundle) => acc + (subBundle.body ? getBundleBits(subBundle) : subBundle.bits), '')
-    : bundle.bits);
+const getBundleBits = ({ headBits, body, bits }) =>
+  headBits +
+  (body ? body.reduce((acc, subBundle) => acc + (subBundle.body ? getBundleBits(subBundle) : subBundle.bits), '') : bits);
 
 const calculateBundle = (config, binaryString) => {
   const bits = binaryString.slice(config.headBits.length);
@@ -72,42 +79,56 @@ const handleBundle = (binaryString) => {
 const deleteEmpty = (binaryString) =>
   binaryString.substring(0, 4) === '0000' ? deleteEmpty(binaryString.replace(/^0000/, '')) : binaryString;
 
-const getBundleBitsAndOtherBits = (bundle, binaryString) => {
+const getRestBits = (bundle, binaryString) => {
   const bundleBits =
     ((bundle.type === 4 || bundle.childrenAmount > 0) && getBundleBits(bundle)) ||
     (bundle.type !== 4 && bundle.childrenLength > 0 && binaryString.slice(0, bundle.headBits.length + bundle.childrenLength)) ||
     null;
-  const fullBits = binaryString.slice(0, Math.ceil(bundleBits.length / 4) * 4);
 
-  return [fullBits, deleteEmpty(binaryString.slice(fullBits.length))];
+  return deleteEmpty(binaryString.slice(binaryString.slice(0, Math.ceil(bundleBits.length / 4) * 4).length));
 };
 
 const buildBundles = (binaryString) => {
   const bundles = [];
   const bundle = handleBundle(binaryString);
-  const [bundleBits, otherBits] = getBundleBitsAndOtherBits(bundle, binaryString);
+  const restBits = getRestBits(bundle, binaryString);
 
-  bundle.binary = bundleBits;
   bundles.push(bundle);
 
-  return otherBits.length ? [...bundles, ...buildBundles(otherBits)] : bundles;
+  return restBits.length ? [...bundles, ...buildBundles(restBits)] : bundles;
 };
 
 const getSumVersions = (bundles) =>
-  bundles.reduce((acc, bundle) => acc + (bundle.version || 0) + (bundle.body ? getSumVersions(bundle.body) : 0), 0);
+  bundles.reduce((acc, { version, body }) => acc + (version || 0) + (body ? getSumVersions(body) : 0), 0);
 
-const task1 = (data) => {
-  const binaryString = data.split('').reduce((acc, symbol) => {
-    const binary = Number(`0x${symbol}`).toString(2);
+const task1 = pipe(getBinaryString, buildBundles, getSumVersions);
 
-    return `${acc}${'0'.repeat(4 - binary.length)}${binary}`;
-  }, '');
+const extractValues =
+  (extractor) =>
+  ({ body }) =>
+    body.map((subBundle) => (subBundle.type === 4 ? subBundle.body[0].value : extractor(subBundle)));
 
-  const bundles = buildBundles(binaryString);
+const reduceBundle = (bundle) => {
+  const extract = extractValues(reduceBundle);
 
-  return getSumVersions(bundles);
+  return cond([
+    [propEq(0, 'type'), pipe(extract, sum)],
+    [
+      propEq(1, 'type'),
+      pipe(
+        extract,
+        reduce((acc, val) => acc * val, 1)
+      ),
+    ],
+    [propEq(2, 'type'), pipe(extract, ($) => Math.min(...$))],
+    [propEq(3, 'type'), pipe(extract, ($) => Math.max(...$))],
+    [propEq(5, 'type'), pipe(extract, ([v1, v2]) => Number(v1 > v2))],
+    [propEq(6, 'type'), pipe(extract, ([v1, v2]) => Number(v1 < v2))],
+    [propEq(7, 'type'), pipe(extract, ([v1, v2]) => Number(v1 === v2))],
+    [T, () => 0],
+  ])(bundle);
 };
 
-const task2 = () => {};
+const task2 = pipe(getBinaryString, buildBundles, head, reduceBundle);
 
 export default () => [task1(DATA), task2(DATA)];
